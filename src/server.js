@@ -32,23 +32,23 @@ const sequelize = new Sequelize(process.env.DATABASE_URL,
   (async () => {
     try {
       await sequelize.authenticate();
-      console.log('✅ Banco de dados conectado');
+      console.log(`✅ Banco de dados conectado`);
 
       if (process.env.NODE_ENV !== 'production') {
         await sequelize.sync({ force:false });
-        console.log('⚠️ Tabelas sincronizadas (modo dev)');
+        console.log(`⚠️ Tabelas sincronizadas (modo dev)`);
       }
 
             app.listen(PORT, '0.0.0.0', () => {
-              console.log('🚀 Servidor rodando em http://localhost:${PORT}`
+              console.log(`🚀 Servidor rodando em http://localhost:${PORT}`
                 );
               }).on('error', (err) => {
-                console.error('💥 Erro:', err);
+                console.error(`💥 Erro:`, err);
                 process.exit(1);
                 });
 
               } catch (error) {
-                console.error('❌ Falha crítica:', error);
+                console.error(`❌ Falha crítica:`, error);
                 process.exit(1);
               }
             })();
