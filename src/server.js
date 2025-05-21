@@ -2,56 +2,55 @@
 require('dotenv').config();
 const express = require('express');
 const { Sequelize } = require('sequelize');
-const logger = require('./utils/logger'); // Remova se não tiver
 
-// Configuração do Express
+// Configurações
 const app = express();
-app.use(express.json());
+const PORT = process.env.PORT || 3981; // Usando 3981 como padrão
 
 // Conexão com o PostgreSQL
 (Railway)
 const sequelize = new Sequelize(process.env.DATABASE_URL,
   {
-    dialect: 'postgre',
+    dialect: 'postgres',
     dialectOptions: {
       ssl: {
         require: true,
-        rejectUnauthorized: false // Necessário para o Railway
+        rejectUnauthorized: false // Obrigatório no Railway
       }
     }
   });
 
-  //Middleware de health check
-  app.get('/health', (req,res) => {
-    res.status(200).json({ status: 'OK' });
-  })/
+  // Middleware básico
+  app.use(express.json());
 
-  // Inicialização segura
-  const startServer = async () => {
+  // Rota de health check
+  app.get('/', (req, res) => {
+    res.send('servidor RH Online (Porta ${PORT})');
+  });
+
+  // Inicialização
+  (async () => {
     try {
-      // Testar conexão com o banco
       await sequelize.authenticate();
-      logger.info('✅ Banco de dados conectado');
+      console.log('✅ Banco de dados conectado');
 
-      // Sincronizar modelos (apenas em dev)
-      if (process.env.NODE_ENV !== 'PRODUCTION') {
+      if (process.env.NODE_ENV !== 'production') {
         await sequelize.sync({ force:false });
-        logger.warn('⚠️ Modo desenvolvimento: tabelas sincronizadas');
+        console.log('⚠️ Tabelas sincronizadas (modo dev)');
       }
 
-      // Iniciar servidor
-      const PORT = process.env.PORT || 3001;
             app.listen(PORT, '0.0.0.0', () => {
-              logger.info('🚀 Servidor rodando na porta ${PORT}`);
+              console.log('🚀 Servidor rodando em http://localhost:${PORT}`
+                );
               }).on('error', (err) => {
-                logger.error('💥 ERRO NO SERVIDOR:', err);
+                console.error('💥 Erro:', err);
                 process.exit(1);
                 });
 
               } catch (error) {
-                logger.error('❌ Falha crítica:', error);
+                console.error('❌ Falha crítica:', error);
                 process.exit(1);
               }
-            };
+            })();
 
 startServer();
