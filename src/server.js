@@ -21,9 +21,9 @@ const startServer = async () => {
     
     // Iniciar o servidor
     app.listen(PORT, '0.0.0.0', () => {
-      logger.info(`Servidor iniciado na porta ${PORT}`);
-    });.on('error', (err) => {
-    logger.error('FALHA AO INICIAR SERVIDOR:', err);
+      console.log(`Servidor rodando na porta ${PORT}`);
+    }).on('error', (err) => {
+    console.error('Erro no servidor:', err);
     process.exit(1);
   });
 
