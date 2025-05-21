@@ -15,18 +15,17 @@ const startServer = async () => {
     
     // Forçar sincronização dos modelos com o banco de dados (apenas em desenvolvimento)
     if (process.env.NODE_ENV !== 'production') {
-      await db.sync(true); // force: true para recriar todas as tabelas
+      await db.sync({ force:true }); // Sintaxe correta do sequelize.sync()
+      logger.warn('TABELAS RECRIADAS(modo desenvolvimento)');
     }
     
     // Iniciar o servidor
     app.listen(PORT, '0.0.0.0', () => {
       logger.info(`Servidor iniciado na porta ${PORT}`);
-    });
-  } catch (error) {
-    logger.error('Erro ao iniciar o servidor:', error);
+    });.on('error', (err) => {
+    logger.error('FALHA AO INICIAR SERVIDOR:', err);
     process.exit(1);
-  }
-};
+  });
 
 // Iniciar o servidor
 startServer();
