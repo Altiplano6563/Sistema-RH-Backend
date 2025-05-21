@@ -1,16 +1,14 @@
 // Modificação do arquivo server.js para forçar sincronização dos modelos
 require('dotenv').config();
 const express = require('express');
-const { Sequelize } =
-require('sequelize');
+const { Sequelize } = require('sequelize');
 
 // Configurações do app
 const app = express();
 const PORT = process.env.PORT || 3981;
 
 // Configuração do Sequelize
-const sequelize = new Sequelize(process.env.DATABASE_URL,
-  {
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
     dialectOptions: {
       ssl: {
@@ -29,22 +27,27 @@ const sequelize = new Sequelize(process.env.DATABASE_URL,
   });
 
   // Função para iniciar o servidor
-  (async function startServer() {
+  const startServer = async () => {
     try {
       await sequelize.authenticate();
       console.log('✅ Banco de dados conectado');
 
       if (process.env.NODE_ENV !== 'production') {
         await sequelize.sync({ force:false });
+        console.log('✅ Tabelas sincronizadas (modo dev)');
       }
 
-            app.listen(PORT, '0.0.0.0', () => {
-              console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
+            const server = app.listen(PORT, '0.0.0.0', () => {
+              console.log(`✅ Servidor rodando em http://localhost:${PORT}`);
               });
-            }catch (error) {
-                console.error('💥 Falha crítica', error);
+            }server.on('error', (err) => {
+                console.error('❌ Erro no servidor', err);
                 process.exit(1);
-                }
+                });
+
+              }catch (error) {
+                console.error('❌ Falha crítica:', error);
+                process.exit(1);
               }
 
 //Inicia o servidor
