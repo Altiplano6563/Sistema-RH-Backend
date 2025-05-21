@@ -1,13 +1,14 @@
 // Modificação do arquivo server.js para forçar sincronização dos modelos
 require('dotenv').config();
 const express = require('express');
-const { Sequelize } = require('sequelize');
+const { Sequelize } =
+require('sequelize');
 
-// Configurações
+// Configurações do app
 const app = express();
-const PORT = process.env.PORT || 3981; // Usando 3981 como padrão
+const PORT = process.env.PORT || 3981;
 
-// Conexão com o PostgreSQL
+// Configuração do Sequelize
 const sequelize = new Sequelize(process.env.DATABASE_URL,
   {
     dialect: 'postgres',
@@ -24,32 +25,27 @@ const sequelize = new Sequelize(process.env.DATABASE_URL,
 
   // Rota de health check
   app.get('/', (req, res) => {
-    res.send('servidor RH Online (Porta ${PORT})');
+    res.send(`servidor RH Online (Porta ${PORT})`);
   });
 
-  // Inicialização
-  (async () => {
+  // Função para iniciar o servidor
+  (async function startServer() {
     try {
       await sequelize.authenticate();
-      console.log(`✅ Banco de dados conectado`);
+      console.log('✅ Banco de dados conectado');
 
       if (process.env.NODE_ENV !== 'production') {
         await sequelize.sync({ force:false });
-        console.log(`⚠️ Tabelas sincronizadas (modo dev)`);
       }
 
             app.listen(PORT, '0.0.0.0', () => {
-              console.log(`🚀 Servidor rodando em http://localhost:${PORT}`
-                );
-              }).on('error', (err) => {
-                console.error(`💥 Erro:`, err);
+              console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
+              });
+            }catch (error) {
+                console.error('💥 Falha crítica', error);
                 process.exit(1);
-                });
-
-              } catch (error) {
-                console.error(`❌ Falha crítica:`, error);
-                process.exit(1);
+                }
               }
-            })();
 
+//Inicia o servidor
 startServer();
