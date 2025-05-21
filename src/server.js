@@ -8,7 +8,6 @@ const app = express();
 const PORT = process.env.PORT || 3981; // Usando 3981 como padrão
 
 // Conexão com o PostgreSQL
-(Railway)
 const sequelize = new Sequelize(process.env.DATABASE_URL,
   {
     dialect: 'postgres',
