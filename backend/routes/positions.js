@@ -1,33 +1,42 @@
 const express = require('express');
-const { check } = require('express-validator');
-const { 
-  getPositions, 
-  getPosition, 
-  createPosition, 
-  updatePosition, 
-  deletePosition 
-} = require('../controllers/positionController');
-
-const { protect, authorize } = require('../middleware/auth');
-
 const router = express.Router();
+const { check } = require('express-validator');
+const auth = require('../middleware/auth');
+const positionController = require('../controllers/positionController');
 
-// Proteger todas as rotas
-router.use(protect);
+// @route   GET api/positions
+// @desc    Obter todos os cargos
+// @access  Private
+router.get('/', auth, positionController.getAllPositions);
 
-// Rotas para cargos
-router.route('/')
-  .get(getPositions)
-  .post([
-    check('titulo', 'Título é obrigatório').not().isEmpty(),
-    check('departamento', 'Departamento é obrigatório').not().isEmpty(),
-    check('faixaSalarialMinima', 'Faixa salarial mínima é obrigatória').isNumeric(),
-    check('faixaSalarialMaxima', 'Faixa salarial máxima é obrigatória').isNumeric()
-  ], authorize('Admin', 'Diretor'), createPosition);
+// @route   GET api/positions/:id
+// @desc    Obter cargo por ID
+// @access  Private
+router.get('/:id', auth, positionController.getPositionById);
 
-router.route('/:id')
-  .get(getPosition)
-  .put(authorize('Admin', 'Diretor'), updatePosition)
-  .delete(authorize('Admin'), deletePosition);
+// @route   POST api/positions
+// @desc    Criar um novo cargo
+// @access  Private
+router.post(
+  '/',
+  [
+    auth,
+    [
+      check('titulo', 'Título é obrigatório').not().isEmpty(),
+      check('departamento', 'Departamento é obrigatório').not().isEmpty()
+    ]
+  ],
+  positionController.createPosition
+);
+
+// @route   PUT api/positions/:id
+// @desc    Atualizar cargo
+// @access  Private
+router.put('/:id', auth, positionController.updatePosition);
+
+// @route   DELETE api/positions/:id
+// @desc    Deletar cargo
+// @access  Private
+router.delete('/:id', auth, positionController.deletePosition);
 
 module.exports = router;

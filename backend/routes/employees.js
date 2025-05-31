@@ -1,38 +1,44 @@
 const express = require('express');
-const { check } = require('express-validator');
-const { 
-  getEmployees, 
-  getEmployee, 
-  createEmployee, 
-  updateEmployee, 
-  deleteEmployee 
-} = require('../controllers/employeeController');
-
-const { protect, authorize } = require('../middleware/auth');
-
 const router = express.Router();
+const { check } = require('express-validator');
+const auth = require('../middleware/auth');
+const employeeController = require('../controllers/employeeController');
 
-// Proteger todas as rotas
-router.use(protect);
+// @route   GET api/employees
+// @desc    Obter todos os funcionários
+// @access  Private
+router.get('/', auth, employeeController.getAllEmployees);
 
-// Rotas para funcionários
-router.route('/')
-  .get(getEmployees)
-  .post([
-    check('nome', 'Nome é obrigatório').not().isEmpty(),
-    check('email', 'Email válido é obrigatório').isEmail(),
-    check('cpf', 'CPF é obrigatório').not().isEmpty(),
-    check('dataNascimento', 'Data de nascimento é obrigatória').not().isEmpty(),
-    check('departamento', 'Departamento é obrigatório').not().isEmpty(),
-    check('cargo', 'Cargo é obrigatório').not().isEmpty(),
-    check('dataContratacao', 'Data de contratação é obrigatória').not().isEmpty(),
-    check('salario', 'Salário é obrigatório').not().isEmpty(),
-    check('cargaHoraria', 'Carga horária é obrigatória').not().isEmpty()
-  ], authorize('Admin', 'Gestor', 'BusinessPartner'), createEmployee);
+// @route   GET api/employees/:id
+// @desc    Obter funcionário por ID
+// @access  Private
+router.get('/:id', auth, employeeController.getEmployeeById);
 
-router.route('/:id')
-  .get(getEmployee)
-  .put(authorize('Admin', 'Gestor', 'BusinessPartner'), updateEmployee)
-  .delete(authorize('Admin'), deleteEmployee);
+// @route   POST api/employees
+// @desc    Criar um novo funcionário
+// @access  Private
+router.post(
+  '/',
+  [
+    auth,
+    [
+      check('nome', 'Nome é obrigatório').not().isEmpty(),
+      check('email', 'Email válido é obrigatório').isEmail(),
+      check('departamento', 'Departamento é obrigatório').not().isEmpty(),
+      check('cargo', 'Cargo é obrigatório').not().isEmpty()
+    ]
+  ],
+  employeeController.createEmployee
+);
+
+// @route   PUT api/employees/:id
+// @desc    Atualizar funcionário
+// @access  Private
+router.put('/:id', auth, employeeController.updateEmployee);
+
+// @route   DELETE api/employees/:id
+// @desc    Deletar funcionário
+// @access  Private
+router.delete('/:id', auth, employeeController.deleteEmployee);
 
 module.exports = router;

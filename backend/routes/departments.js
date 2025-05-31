@@ -1,32 +1,42 @@
 const express = require('express');
-const { check } = require('express-validator');
-const { 
-  getDepartments, 
-  getDepartment, 
-  createDepartment, 
-  updateDepartment, 
-  deleteDepartment 
-} = require('../controllers/departmentController');
-
-const { protect, authorize } = require('../middleware/auth');
-
 const router = express.Router();
+const { check } = require('express-validator');
+const auth = require('../middleware/auth');
+const departmentController = require('../controllers/departmentController');
 
-// Proteger todas as rotas
-router.use(protect);
+// @route   GET api/departments
+// @desc    Obter todos os departamentos
+// @access  Private
+router.get('/', auth, departmentController.getAllDepartments);
 
-// Rotas para departamentos
-router.route('/')
-  .get(getDepartments)
-  .post([
-    check('nome', 'Nome é obrigatório').not().isEmpty(),
-    check('centroCusto', 'Centro de custo é obrigatório').not().isEmpty(),
-    check('orcamento', 'Orçamento é obrigatório').isNumeric()
-  ], authorize('Admin', 'Diretor'), createDepartment);
+// @route   GET api/departments/:id
+// @desc    Obter departamento por ID
+// @access  Private
+router.get('/:id', auth, departmentController.getDepartmentById);
 
-router.route('/:id')
-  .get(getDepartment)
-  .put(authorize('Admin', 'Diretor'), updateDepartment)
-  .delete(authorize('Admin'), deleteDepartment);
+// @route   POST api/departments
+// @desc    Criar um novo departamento
+// @access  Private
+router.post(
+  '/',
+  [
+    auth,
+    [
+      check('nome', 'Nome é obrigatório').not().isEmpty(),
+      check('centroCusto', 'Centro de custo é obrigatório').not().isEmpty()
+    ]
+  ],
+  departmentController.createDepartment
+);
+
+// @route   PUT api/departments/:id
+// @desc    Atualizar departamento
+// @access  Private
+router.put('/:id', auth, departmentController.updateDepartment);
+
+// @route   DELETE api/departments/:id
+// @desc    Deletar departamento
+// @access  Private
+router.delete('/:id', auth, departmentController.deleteDepartment);
 
 module.exports = router;

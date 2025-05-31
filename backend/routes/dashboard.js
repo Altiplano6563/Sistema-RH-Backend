@@ -1,34 +1,31 @@
 const express = require('express');
-const { check } = require('express-validator');
-const { 
-  getDashboardMetrics, 
-  createDashboardMetric, 
-  updateDashboardMetric, 
-  deleteDashboardMetric,
-  getDashboardSummary
-} = require('../controllers/dashboardController');
-
-const { protect, authorize } = require('../middleware/auth');
-
 const router = express.Router();
+const auth = require('../middleware/auth');
+const dashboardController = require('../controllers/dashboardController');
 
-// Proteger todas as rotas
-router.use(protect);
+// @route   GET api/dashboard/summary
+// @desc    Obter resumo do dashboard
+// @access  Private
+router.get('/summary', auth, dashboardController.getDashboardSummary);
 
-// Rota para resumo do dashboard
-router.get('/summary', getDashboardSummary);
+// @route   GET api/dashboard/headcount
+// @desc    Obter dados de headcount
+// @access  Private
+router.get('/headcount', auth, dashboardController.getHeadcountData);
 
-// Rotas para métricas do dashboard
-router.route('/metrics')
-  .get(getDashboardMetrics)
-  .post([
-    check('tipo', 'Tipo de métrica é obrigatório').not().isEmpty(),
-    check('valor', 'Valor é obrigatório').isNumeric(),
-    check('periodo', 'Período é obrigatório').not().isEmpty()
-  ], authorize('Admin', 'Diretor', 'BusinessPartner'), createDashboardMetric);
+// @route   GET api/dashboard/turnover
+// @desc    Obter dados de turnover
+// @access  Private
+router.get('/turnover', auth, dashboardController.getTurnoverData);
 
-router.route('/metrics/:id')
-  .put(authorize('Admin', 'Diretor', 'BusinessPartner'), updateDashboardMetric)
-  .delete(authorize('Admin', 'Diretor'), deleteDashboardMetric);
+// @route   GET api/dashboard/budget
+// @desc    Obter dados de orçamento
+// @access  Private
+router.get('/budget', auth, dashboardController.getBudgetData);
+
+// @route   GET api/dashboard/salary-alerts
+// @desc    Obter alertas de salário
+// @access  Private
+router.get('/salary-alerts', auth, dashboardController.getSalaryAlerts);
 
 module.exports = router;

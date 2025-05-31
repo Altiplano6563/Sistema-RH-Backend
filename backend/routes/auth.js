@@ -1,33 +1,38 @@
 const express = require('express');
-const { check } = require('express-validator');
-const { register, login, getMe, updateDetails, updatePassword } = require('../controllers/authController');
-const { protect } = require('../middleware/auth');
-
 const router = express.Router();
+const { check } = require('express-validator');
+const authController = require('../controllers/authController');
+const auth = require('../middleware/auth');
 
-// Rotas públicas
+// @route   POST api/auth/register
+// @desc    Registrar um usuário
+// @access  Public
 router.post(
   '/register',
   [
     check('nome', 'Nome é obrigatório').not().isEmpty(),
     check('email', 'Por favor, inclua um email válido').isEmail(),
-    check('senha', 'Por favor, digite uma senha com 6 ou mais caracteres').isLength({ min: 6 })
+    check('password', 'Por favor, digite uma senha com 6 ou mais caracteres').isLength({ min: 6 }),
+    check('perfil', 'Perfil é obrigatório').not().isEmpty()
   ],
-  register
+  authController.register
 );
 
+// @route   POST api/auth/login
+// @desc    Autenticar usuário e obter token
+// @access  Public
 router.post(
   '/login',
   [
     check('email', 'Por favor, inclua um email válido').isEmail(),
-    check('senha', 'Senha é obrigatória').exists()
+    check('password', 'Senha é obrigatória').exists()
   ],
-  login
+  authController.login
 );
 
-// Rotas protegidas
-router.get('/me', protect, getMe);
-router.put('/updatedetails', protect, updateDetails);
-router.put('/updatepassword', protect, updatePassword);
+// @route   GET api/auth/user
+// @desc    Obter dados do usuário logado
+// @access  Private
+router.get('/user', auth, authController.getUser);
 
 module.exports = router;
